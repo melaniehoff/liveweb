@@ -1,0 +1,151 @@
+<html>
+
+<head>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io.connect();
+        socket.on('connect', function() {
+            console.log("Connected");
+        });
+
+        var r = 1400 * Math.random();
+        var g = 900 * Math.random();
+
+        var batteryLevel = 0;
+
+        var mouseCnt = 0;
+
+        var othercolor = "rgb(157, 255, 0)";
+        // var color = "rgb(" + Math.floor(r) + "," + Math.floor(g) + "," + Math.floor(b) + ")";
+        // var color = "rgb(" + r + "," + g + "," + b + ")";
+        socket.on('drawing', function(data) {
+            console.log("rect color= " + othercolor);
+            // console.log("color!=" + data.color)
+            context.fillStyle = othercolor;
+            context.fillRect(data.x, data.y, 1.5, 1.5);
+        });
+
+
+        var context;
+        var count = 0;
+        var canvas;
+        // var dataURL = canvas.toDataURL();
+        // console.log(dataURL);
+        function init() {
+            var canvas = document.getElementById('mycanvas');
+            context = canvas.getContext('2d');
+            // context.drawImage(myvideo,0,0,cw,ch);
+            // canvas.globalAlpha = 0.5;
+            canvas.addEventListener('mousemove', mouseMoved);
+
+            // var imageObj1 = new Image();
+            //
+            // imageObj1.onload = function() {
+            //     context.drawImage(imageObj1, 0, 0, 600, 500);
+            // };
+            // var imageObj2 = new Image();
+            // imageObj2.onload = function() {
+            //     context.drawImage(imageObj2, 600, 0, 600, 500);
+            //     // imageObj2.src = canvas.toDataURL(0);
+            // };
+            // imageObj1.src = 'http://images.anandtech.com/reviews/mac/MacBookProSummer2009/bottomopen2.jpg';
+            // imageObj2.src = 'http://cdn.arstechnica.net/wp-content/uploads/2012/07/RetinaMBP15BOM18.jpg';
+            var dataURL = canvas.toDataURL();
+
+        }
+
+
+        function mouseMoved(evt) {
+            //console.log(evt);
+            mouseCnt += 1;
+            if (mouseCnt % 3 == 0) {
+                console.log(mouseCnt);
+                context.beginPath();
+                context.moveTo(Math.floor(r), Math.floor(g));
+                context.lineTo(evt.clientX, evt.clientY);
+                context.strokeStyle = batteryLevel;
+                // context.lineWidth = (context.lineWidth % 30) + 0.1;
+                context.lineWidth = 1;
+                context.stroke();
+                socket.emit('drawing', {
+                    x: evt.clientX,
+                    y: evt.clientY
+                });
+            }
+
+            console.log(batteryLevel);
+
+        }
+        // function mouseMoved(evt) {
+        // 	//console.log(evt);
+        // 	context.fillRect(evt.clientX, evt.clientY, 10,10);
+        // 	context.fillStyle=batteryLevel;
+        // 	socket.emit('drawing',{x: evt.clientX, y: evt.clientY, color: batteryLevel});
+        //     console.log(batteryLevel);
+        //
+        // }
+
+
+        navigator.getBattery().then(function(battery) {
+            function updateAllBatteryInfo() {
+                updateChargeInfo();
+                updateLevelInfo();
+
+            }
+            updateAllBatteryInfo();
+
+            battery.addEventListener('chargingchange', function() {
+                updateChargeInfo();
+            });
+
+            function updateChargeInfo() {
+                console.log("Battery charging? " +
+                    (battery.charging ? "Yes" : "No"));
+            }
+
+            battery.addEventListener('levelchange', function() {
+                updateLevelInfo();
+            });
+
+            function updateLevelInfo() {
+                console.log("Battery level: " +
+                    battery.level * 100 + "%");
+                // batteryLevel = battery.level * 255;
+                batteryLevel = "rgb(" + Math.floor(battery.level * 255) + "," + 255 + "," + Math.floor(battery.level * 255) + ")";
+                // console.log(batteryLevel);
+
+            }
+
+
+        });
+        window.addEventListener('load', init);
+
+        // window.onload = init();
+    </script>
+    <style>
+body {
+    background-image: url(https://s20.postimg.org/56s6w6lsd/battery.jpg);
+}
+</style>
+</head>
+
+
+<body>
+
+
+
+    <div>
+
+        <canvas width="1400" height="1200" id="mycanvas" style="position:absolute; z-index:10;"></canvas>
+
+
+        <!-- <div style="width: 1200px; height:600px; z-index: 0;"> -->
+
+        <!-- </div> -->
+    </div>
+
+
+</body>
+
+</html>

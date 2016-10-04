@@ -1,0 +1,106 @@
+<html>
+	<head>
+		<script src="/socket.io/socket.io.js"></script>
+		<script>
+			var thecontext;
+			var socket = io.connect();
+			
+			socket.on('connect', function() {
+				console.log("Connected");
+			});
+
+			// Receive a message
+			socket.on('message', function(data) {
+				console.log("Got: " + data);
+				document.getElementById('messages').innerHTML += data;
+			});
+
+			// Receive from any event
+			socket.on('news', function (data) {
+				console.log(data);
+			});
+
+			var dx = 0;
+			var dy = 0;
+			socket.on('drawing', function(drawingdata) {
+				console.log(drawingdata);
+				thecontext.beginPath();
+						thecontext.moveTo(dx,dy);
+						thecontext.lineTo(drawingdata.x, drawingdata.y);
+						thecontext.stroke();
+				dx = drawingdata.x;
+				dy = drawingdata.y;
+			});
+			
+			var sendmessage = function() {
+				var message = document.getElementById('message').value;
+				console.log("Sending: " + message);
+				
+				// Send a messaage
+				socket.send(message);
+			};
+			
+			var sendother = function() {
+				var othermessage = document.getElementById('message').value;
+				console.log("sending: " + othermessage);
+				
+				// Send any kind of data with a custom event
+				//socket.emit('otherevent',{ othermessage: othermessage });
+				socket.emit('otherevent', othermessage);
+			};
+
+
+
+			function init() {
+				var px = 0;
+				var py = 0;
+
+				var thecanvas = document.getElementById('thecanvas');
+				thecanvas.addEventListener('mousemove', 
+					function(evt) {
+						//console.log(evt);
+						thecontext.beginPath();
+						thecontext.moveTo(px,py);
+						thecontext.lineTo(evt.clientX, evt.clientY);
+						thecontext.stroke();
+
+						px = evt.clientX;
+						py = evt.clientY;
+
+						var thedata = {
+							x: evt.clientX,
+							y: evt.clientY
+						};
+
+						socket.emit('drawing',thedata);
+
+					}
+				);
+
+
+				thecontext = thecanvas.getContext('2d');
+
+				thecontext.fillRect(10,10,100,100);
+
+				thecontext.beginPath();
+				thecontext.moveTo(100,100);
+				thecontext.lineTo(210,340);
+				thecontext.stroke();
+
+			}
+
+			window.addEventListener('load', init);
+
+
+
+		</script>
+	</head>
+	<body>
+ 		<canvas id="thecanvas" width="600" height="400"></canvas>
+
+
+
+
+
+	</body>
+</html>

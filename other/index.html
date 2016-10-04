@@ -1,0 +1,83 @@
+<html>
+	<head>
+		<title>A DEFAULT PAGE</title>
+		<script type="text/javascript">
+
+			var divTwo;
+			var myVideo
+
+			var foo = "something";   //declared and defined variable
+			console.log(foo);
+			if (typeof foo == "string") {
+				console.log("its a string");
+				//alert("just for fun fun fun"); //a cheap way to do inline debugging - stops everything before pressing ok
+			}
+			foo = 1;
+			console.log(typeof foo);
+
+			// var i = 0;
+
+			// var bFunction = function()
+
+			console.log(window.document);
+
+
+		function whenPageLoadsDoThis () {
+			window.document.body.innerHTML += "nothing";
+
+			var divTwo = window.document.getElementById("two");
+			divTwo.innerHTML = "HA";
+			divTwo.style.fontSize = "100px";
+
+
+
+			divTwo.addEventListener('click', mouseWasClicked);
+
+			myVideo = document.getElementById("aVideo");
+			myVideo.addEventListener('timeupdate',
+				function() {
+					console.log(myVideo.currentTime);
+
+					if (myVideo.currentTime > 10 ) {
+						divTwo.innerHTML = "cow";
+
+					} 
+
+					if (myVideo.currentTime > 15) {
+
+						divTwo.innerHTML = "HAA";
+
+					}
+
+
+				});
+			myVideo.play();
+		}
+
+		function mouseWasClicked() {
+
+			divTwo.style.color = "pink";
+		}
+
+		window.addEventListener('load', whenPageLoadsDoThis);
+		//window.onLoad(whenPageLoadsDoThis);
+
+		</script>
+
+	</head>
+
+	<body>
+
+		Content goes here
+
+
+
+		<div id="one">Here is a division of content</div>
+		<div id="two">Here is another division of content</div>
+
+		<video id="avideo" width="720" height="480" src="video.mp4" controls />
+
+
+	</body>
+
+</html>
